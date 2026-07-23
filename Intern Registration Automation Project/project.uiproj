@@ -1,0 +1,6 @@
+{
+  "Name": "CapitalIT_InternshipRPA",
+  "ProjectType": "Process",
+  "Description": "Blank Process",
+  "MainFile": "Main.xaml"
+}
