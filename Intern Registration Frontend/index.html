@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Capital IT — สมัครฝึกงาน</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0B1220;
+      --navy-2: #111A2E;
+      --bg: #F5F7FB;
+      --surface: #FFFFFF;
+      --primary: #2F5EFF;
+      --primary-dark: #1E3FCC;
+      --teal: #12B8A0;
+      --teal-text: #0F766E;
+      --amber: #F5A623;
+      --amber-text: #92400E;
+      --red: #C4363B;
+      --ink: #101423;
+      --muted: #475569;
+      --line: #CBD5E1;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    .font-display {
+      font-family: 'Space Grotesk', 'Noto Sans Thai', sans-serif;
+    }
+
+    ::selection {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* focus visibility */
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+
+    /* --- hero circuit texture ---
+     NOTE: .circuit-bg sets the dark gradient via background-image, and the grid
+     overlay used to ALSO be set via background-image on the same element. Two
+     rules setting the same property on one element don't merge - the later one
+     in source order wins outright - so the grid rule was silently erasing the
+     entire navy gradient, leaving the section background effectively blank/light
+     and the white text unreadable. The grid pattern now lives on a ::before
+     pseudo-element instead, so both layers render together. */
+    .circuit-bg {
+      background-color: var(--navy);
+      /* solid fallback, always guarantees a dark base */
+      background-image:
+        radial-gradient(circle at 15% 20%, rgba(47, 94, 255, 0.45), transparent 40%),
+        radial-gradient(circle at 85% 0%, rgba(18, 184, 160, 0.30), transparent 45%),
+        linear-gradient(180deg, var(--navy) 0%, var(--navy-2) 100%);
+    }
+
+    .grid-lines {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .grid-lines::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+      background-size: 42px 42px;
+      pointer-events: none;
+    }
+
+    /* --- pipeline / signature stepper --- */
+    .pipeline {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+    }
+
+    .pipeline .step {
+      flex: 1;
+      position: relative;
+      text-align: left;
+      padding-top: 2.25rem;
+    }
+
+    .pipeline .dot {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 2px solid rgba(255, 255, 255, 0.35);
+    }
+
+    .pipeline .step.active .dot {
+      background: var(--teal);
+      border-color: var(--teal);
+      box-shadow: 0 0 0 4px rgba(18, 184, 160, 0.2);
+    }
+
+    .pipeline .bar {
+      position: absolute;
+      top: 6px;
+      left: 14px;
+      right: -14px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .pipeline .step:last-child .bar {
+      display: none;
+    }
+
+    .pipeline .step.active .bar {
+      background: var(--teal);
+    }
+
+    /* --- form card --- */
+    .field-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: 0.01em;
+    }
+
+    .field-input {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      background: #fff;
+      border-radius: 0.65rem;
+      padding: 0.7rem 0.9rem;
+      font-size: 0.95rem;
+      color: var(--ink);
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .field-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(47, 94, 255, 0.12);
+      outline: none;
+    }
+
+    .field-input.invalid {
+      border-color: var(--red);
+      box-shadow: 0 0 0 4px rgba(196, 54, 59, 0.12);
+    }
+
+    .err-msg {
+      font-size: 0.78rem;
+      color: var(--red);
+      min-height: 1rem;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 600;
+      border-radius: 0.7rem;
+      padding: 0.85rem 1.5rem;
+      transition: background .15s ease, transform .1s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    /* --- success modal --- */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 18, 32, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 60;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+      padding: 1rem;
+    }
+
+    .modal-backdrop.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: #fff;
+      border-radius: 1rem;
+      max-width: 26rem;
+      width: 100%;
+      padding: 2rem;
+      text-align: center;
+      transform: translateY(12px) scale(0.97);
+      opacity: 0;
+      transition: transform .25s ease, opacity .25s ease;
+    }
+
+    .modal-backdrop.show .modal-card {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+    /* --- chatbot widget --- */
+    .chat-fab {
+      width: 60px;
+      height: 60px;
+      border-radius: 999px;
+      background: var(--primary);
+      box-shadow: 0 10px 24px rgba(47, 94, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform .15s ease, background .15s ease;
+    }
+
+    .chat-fab:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    .chat-panel {
+      width: min(380px, 92vw);
+      height: min(560px, 72vh);
+      background: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 24px 60px rgba(11, 18, 32, 0.28);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform-origin: bottom right;
+      transform: scale(0.9) translateY(12px);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform .2s ease, opacity .2s ease;
+    }
+
+    .chat-panel.open {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .chat-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(47, 94, 255, 0.04), transparent 40%),
+        #F8F9FC;
+    }
+
+    .bubble {
+      max-width: 85%;
+      padding: 0.6rem 0.85rem;
+      border-radius: 0.9rem;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      animation: pop .18s ease;
+    }
+
+    @keyframes pop {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .bubble-bot {
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      align-self: flex-start;
+      border-bottom-left-radius: 0.25rem;
+    }
+
+    .bubble-user {
+      background: var(--primary);
+      color: #fff;
+      align-self: flex-end;
+      border-bottom-right-radius: 0.25rem;
+    }
+
+    .chat-choices {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      align-self: flex-start;
+      width: 100%;
+    }
+
+    .chat-choice-btn {
+      text-align: left;
+      border: 1.5px solid var(--primary);
+      color: var(--primary);
+      background: #fff;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.55rem 0.8rem;
+      border-radius: 0.65rem;
+      transition: background .15s ease, color .15s ease;
+    }
+
+    .chat-choice-btn:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .typing-dots span {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      margin-right: 3px;
+      border-radius: 999px;
+      background: var(--muted);
+      animation: blink 1.2s infinite;
+    }
+
+    .typing-dots span:nth-child(2) {
+      animation-delay: .2s;
+    }
+
+    .typing-dots span:nth-child(3) {
+      animation-delay: .4s;
+    }
+
+    @keyframes blink {
+
+      0%,
+      80%,
+      100% {
+        opacity: 0.25;
+      }
+
+      40% {
+        opacity: 1;
+      }
+    }
+
+    .status-tag {
+      display: inline-block;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+  </style>
+</head>
+
+<body class="antialiased">
+
+  <!-- ============ NAV ============ -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b" style="border-color:var(--line)">
+    <div class="max-w-6xl mx-auto px-5 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:var(--primary)">
+          <span class="font-display text-white font-bold text-sm">CIT</span>
+        </div>
+        <span class="font-display font-bold text-lg tracking-tight">Capital IT</span>
+      </div>
+      <a href="#apply" class="hidden sm:inline-block text-sm font-semibold px-4 py-2 rounded-lg"
+        style="background:var(--primary); color:#fff;">สมัครฝึกงาน</a>
+    </div>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section class="circuit-bg grid-lines relative overflow-hidden">
+    <div class="max-w-6xl mx-auto px-5 py-16 md:py-24 relative">
+      <p class="font-display text-xs tracking-[0.2em] uppercase mb-4" style="color:#8FA6FF;">Capital IT Internship
+        Program</p>
+      <h1 class="font-display text-white font-bold text-3xl sm:text-4xl md:text-5xl leading-tight max-w-2xl">
+        เริ่มต้นเส้นทางสายเทคฯ ของคุณกับทีม Capital IT
+      </h1>
+      <p class="mt-5 text-slate-300 max-w-xl text-base leading-relaxed">
+        โปรแกรมฝึกงานสำหรับคนรุ่นใหม่ที่อยากเรียนรู้งานคอนเทนต์ การตลาดดิจิทัล และการบริหารชุมชนออนไลน์แบบมืออาชีพ
+        พร้อมพี่เลี้ยงดูแลตลอดโปรแกรม
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="#apply" class="btn-primary inline-block">กรอกใบสมัครตอนนี้</a>
+        <a href="#positions"
+          class="inline-block px-6 py-3 rounded-xl text-sm font-semibold text-white border border-white/25 hover:bg-white/10 transition">ดูตำแหน่งที่เปิดรับ</a>
+      </div>
+
+      <!-- signature pipeline element -->
+      <div class="mt-16 max-w-2xl">
+        <p class="text-xs font-semibold uppercase tracking-wider mb-6" style="color:#8FA6FF;">เส้นทางการสมัคร —
+          Application Journey</p>
+        <div class="pipeline">
+          <div class="step active">
+            <span class="dot"></span><span class="bar"></span>
+            <p class="text-white text-sm font-semibold">ส่งใบสมัคร</p>
+            <p class="text-slate-400 text-xs mt-1">Submitted</p>
+          </div>
+          <div class="step">
+            <span class="dot"></span><span class="bar"></span>
+            <p class="text-white text-sm font-semibold">ทีมงานพิจารณา</p>
+            <p class="text-slate-400 text-xs mt-1">Screening</p>
+          </div>
+          <div class="step">
+            <span class="dot"></span><span class="bar"></span>
+            <p class="text-white text-sm font-semibold">สัมภาษณ์</p>
+            <p class="text-slate-400 text-xs mt-1">Interview</p>
+          </div>
+          <div class="step">
+            <span class="dot"></span>
+            <p class="text-white text-sm font-semibold">ยืนยันตำแหน่ง</p>
+            <p class="text-slate-400 text-xs mt-1">Offer</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OPEN POSITIONS ============ -->
+  <section id="positions" class="max-w-6xl mx-auto px-5 py-14">
+    <h2 class="font-display font-bold text-2xl mb-2">ตำแหน่งที่เปิดรับ</h2>
+    <p class="text-sm mb-8" style="color:var(--muted)">เลือกตำแหน่งที่ตรงกับความสนใจของคุณ แล้วกรอกใบสมัครด้านล่าง</p>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- position cards -->
+      <div class="bg-white rounded-xl p-5 border" style="border-color:var(--line)">
+        <p class="font-display font-semibold">Content Creator</p>
+        <p class="text-xs mt-1" style="color:var(--muted)">ผลิตคอนเทนต์สำหรับแพลตฟอร์มโซเชียลของบริษัท</p>
+      </div>
+      <div class="bg-white rounded-xl p-5 border" style="border-color:var(--line)">
+        <p class="font-display font-semibold">Influencer Coordinator</p>
+        <p class="text-xs mt-1" style="color:var(--muted)">ประสานงานกับอินฟลูเอนเซอร์และพาร์ทเนอร์</p>
+      </div>
+      <div class="bg-white rounded-xl p-5 border" style="border-color:var(--line)">
+        <p class="font-display font-semibold">Digital Marketing</p>
+        <p class="text-xs mt-1" style="color:var(--muted)">วางแผนและดูแลแคมเปญการตลาดดิจิทัล</p>
+      </div>
+      <div class="bg-white rounded-xl p-5 border" style="border-color:var(--line)">
+        <p class="font-display font-semibold">Video Editor</p>
+        <p class="text-xs mt-1" style="color:var(--muted)">ตัดต่อวิดีโอสำหรับแคมเปญและคอนเทนต์ต่างๆ</p>
+      </div>
+      <div class="bg-white rounded-xl p-5 border" style="border-color:var(--line)">
+        <p class="font-display font-semibold">Community Manager</p>
+        <p class="text-xs mt-1" style="color:var(--muted)">ดูแลและสร้างการมีส่วนร่วมในชุมชนออนไลน์</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ APPLICATION FORM ============ -->
+  <section id="apply" class="max-w-6xl mx-auto px-5 pb-24">
+    <div class="bg-white rounded-2xl border shadow-sm overflow-hidden" style="border-color:var(--line)">
+      <div class="grid md:grid-cols-5">
+        <!-- side panel -->
+        <div class="md:col-span-2 p-8 md:p-10 text-white flex flex-col justify-between circuit-bg">
+          <div>
+            <h2 class="font-display font-bold text-2xl mb-3">ใบสมัครฝึกงาน</h2>
+            <p class="text-sm text-slate-300 leading-relaxed">กรอกข้อมูลให้ครบถ้วน ทีมงานจะติดต่อกลับผ่านอีเมลภายใน 5-7
+              วันทำการ</p>
+          </div>
+          <ul class="mt-8 space-y-3 text-sm text-slate-300">
+            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full"
+                style="background:var(--teal)"></span> ตรวจสอบสถานะได้ผ่านแชทบอทมุมล่างขวา</li>
+            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full"
+                style="background:var(--teal)"></span> แนบลิงก์ผลงานหรือ Google Drive</li>
+            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full"
+                style="background:var(--teal)"></span> ไม่มีค่าใช้จ่ายใดๆ ในการสมัคร</li>
+          </ul>
+        </div>
+
+        <!-- form -->
+        <div class="md:col-span-3 p-8 md:p-10">
+          <form id="applyForm" novalidate>
+            <div class="grid sm:grid-cols-2 gap-5">
+              <div class="sm:col-span-2">
+                <label class="field-label" for="fullName">ชื่อ-นามสกุล (Full Name) <span
+                    style="color:var(--red)">*</span></label>
+                <input type="text" id="fullName" name="fullName" class="field-input mt-1.5"
+                  placeholder="เช่น สมชาย ใจดี" />
+                <p class="err-msg" data-err="fullName"></p>
+              </div>
+
+              <div>
+                <label class="field-label" for="email">อีเมล (Email) <span style="color:var(--red)">*</span></label>
+                <input type="email" id="email" name="email" class="field-input mt-1.5" placeholder="you@example.com" />
+                <p class="err-msg" data-err="email"></p>
+              </div>
+
+              <div>
+                <label class="field-label" for="phone">เบอร์โทรศัพท์ (Phone Number) <span
+                    style="color:var(--red)">*</span></label>
+                <input type="tel" id="phone" name="phone" class="field-input mt-1.5" placeholder="08xxxxxxxx"
+                  maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                <p class="err-msg" data-err="phone"></p>
+              </div>
+
+              <div class="sm:col-span-2">
+                <label class="field-label" for="position">ตำแหน่งที่สนใจ (Position) <span
+                    style="color:var(--red)">*</span></label>
+                <select id="position" name="position" class="field-input mt-1.5">
+                  <option value="" disabled selected>เลือกตำแหน่ง...</option>
+                  <option value="Content Creator">Content Creator</option>
+                  <option value="Influencer Coordinator">Influencer Coordinator</option>
+                  <option value="Digital Marketing">Digital Marketing</option>
+                  <option value="Video Editor">Video Editor</option>
+                  <option value="Community Manager">Community Manager</option>
+                </select>
+                <p class="err-msg" data-err="position"></p>
+              </div>
+
+              <div class="sm:col-span-2">
+                <label class="field-label" for="resume">Google Drive / Portfolio URL <span
+                    style="color:var(--red)">*</span></label>
+                <input type="url" id="resume" name="resume" class="field-input mt-1.5"
+                  placeholder="https://drive.google.com/..." />
+                <p class="err-msg" data-err="resume"></p>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary w-full mt-6">ส่งใบสมัคร</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="border-t py-8" style="border-color:var(--line)">
+    <p class="text-center text-xs" style="color:var(--muted)">© 2026 Capital IT. All rights reserved. —
+      ระบบสมัครฝึกงานนี้เป็นระบบตัวอย่างเพื่อการสาธิต</p>
+  </footer>
+
+  <!-- ============ SUCCESS MODAL ============ -->
+  <div id="successModal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="w-14 h-14 rounded-full mx-auto flex items-center justify-center mb-4"
+        style="background:rgba(15,118,110,0.12);">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <h3 class="font-display font-bold text-xl mb-2">ส่งใบสมัครสำเร็จ!</h3>
+      <p class="text-sm" style="color:var(--muted)">ขอบคุณที่สนใจร่วมงานกับ Capital IT
+        ทีมงานจะติดต่อกลับผ่านอีเมลที่คุณระบุ</p>
+      <p class="text-xs mt-2" style="color:var(--red)">*อีเมลตอบกลับอาจอยู่ในจดหมายขยะ โปรดตรวจสอบด้วย</p>
+      <button id="closeModalBtn" class="btn-primary mt-6 w-full">ปิดหน้าต่าง</button>
+    </div>
+  </div>
+
+  <!-- ============ CHATBOT WIDGET ============ -->
+  <div class="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3">
+
+    <div id="chatPanel" class="chat-panel">
+      <!-- header -->
+      <div class="flex items-center justify-between px-4 py-3 text-white" style="background:var(--primary)">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-display font-bold text-xs">
+            CIT</div>
+          <div>
+            <p class="text-sm font-semibold leading-tight">Capital IT Bot</p>
+            <p class="text-[11px] text-white leading-tight opacity-95">พร้อมช่วยเหลือคุณ</p>
+          </div>
+        </div>
+        <button id="chatCloseBtn" aria-label="ปิดแชท"
+          class="w-7 h-7 rounded-full hover:bg-white/15 flex items-center justify-center transition">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
+            stroke-linecap="round">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- body -->
+      <div id="chatBody" class="chat-body"></div>
+
+      <!-- input row (hidden unless awaiting phone input) -->
+      <div id="chatInputRow" class="hidden border-t p-2.5 flex gap-2 items-center" style="border-color:var(--line)">
+        <input id="chatTextInput" type="tel" inputmode="numeric" placeholder="กรอกเบอร์โทรศัพท์..." class="field-input"
+          style="padding:0.55rem 0.8rem; font-size:0.85rem;" />
+        <button id="chatSendBtn" class="shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-white"
+          style="background:var(--primary)" aria-label="ส่ง">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13" />
+            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <button id="chatFabBtn" class="chat-fab" aria-label="เปิดแชทบอท">
+      <svg id="fabIconChat" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path
+          d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+      </svg>
+      <svg id="fabIconClose" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
+        stroke-linecap="round" class="hidden">
+        <path d="M18 6L6 18M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /* =========================================================
+         PART 1 — APPLICATION FORM
+      ========================================================= */
+      const form = document.getElementById('applyForm');
+      const modal = document.getElementById('successModal');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+
+      const validators = {
+        fullName: v => v.trim().length >= 2 ? '' : 'กรุณากรอกชื่อ-นามสกุล',
+        email: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? '' : 'รูปแบบอีเมลไม่ถูกต้อง',
+        phone: v => /^[0-9]{10}$/.test(v.trim()) ? '' : 'กรุณากรอกเบอร์โทรศัพท์เป็นตัวเลข 10 หลักเท่านั้น',
+        position: v => v ? '' : 'กรุณาเลือกตำแหน่ง',
+        resume: v => /^https?:\/\/.+/.test(v.trim()) ? '' : 'กรุณากรอกลิงก์ที่ขึ้นต้นด้วย http:// หรือ https://'
+      };
+
+      function setError(field, msg) {
+        const el = form.querySelector(`[data-err="${field}"]`);
+        const input = form.querySelector(`#${field}`);
+        if (el) el.textContent = msg;
+        if (input) input.classList.toggle('invalid', !!msg);
+      }
+
+      function validateAll() {
+        let ok = true;
+        Object.keys(validators).forEach(field => {
+          const input = form.querySelector(`#${field}`);
+          const msg = validators[field](input.value || '');
+          setError(field, msg);
+          if (msg) ok = false;
+        });
+        return ok;
+      }
+
+      // live-clear error on input
+      Object.keys(validators).forEach(field => {
+        const input = form.querySelector(`#${field}`);
+        input.addEventListener('input', () => setError(field, ''));
+        input.addEventListener('change', () => setError(field, ''));
+      });
+
+      // นำ URL ที่ได้จาก Apps Script มาใส่ตรงนี้
+      const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbysaxJR5eVo-CY53BOLXPW6nk_dwJCCSaUMgkj4nIn8tflAcN0jspVrK6T_9MLwctaA/exec';
+
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        if (!validateAll()) return;
+
+        // เปลี่ยนปุ่มเป็นสถานะกำลังโหลด
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'กำลังส่งข้อมูล...';
+        submitBtn.disabled = true;
+
+        // รวบรวมข้อมูลจากฟอร์ม
+        const formData = {
+          fullName: form.fullName.value,
+          email: form.email.value,
+          phone: form.phone.value,
+          position: form.position.value,
+          resume: form.resume.value
+        };
+
+        try {
+          // ส่งข้อมูลไปที่ Google Sheet ผ่าน API
+          const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(formData),
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+          });
+
+          const result = await response.json();
+
+          if (result.status === 'success') {
+            modal.classList.add('show');
+            form.reset();
+          } else if (result.status === 'duplicate') {
+            alert('ไม่สามารถส่งใบสมัครได้: เบอร์โทรศัพท์นี้ถูกใช้สมัครไปแล้ว');
+          } else {
+            alert('เกิดข้อผิดพลาดในการส่งข้อมูล: ' + result.message);
+          }
+        } catch (error) {
+          alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้');
+        } finally {
+          // คืนค่าปุ่มกลับมาเหมือนเดิม
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
+        }
+      });
+
+      closeModalBtn.addEventListener('click', () => modal.classList.remove('show'));
+      modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('show'); });
+
+
+      /* =========================================================
+         PART 2 — RULE-BASED CHATBOT
+      ========================================================= */
+      const fab = document.getElementById('chatFabBtn');
+      const panel = document.getElementById('chatPanel');
+      const closeBtn = document.getElementById('chatCloseBtn');
+      const body = document.getElementById('chatBody');
+      const inputRow = document.getElementById('chatInputRow');
+      const textInput = document.getElementById('chatTextInput');
+      const sendBtn = document.getElementById('chatSendBtn');
+      const fabIconChat = document.getElementById('fabIconChat');
+      const fabIconClose = document.getElementById('fabIconClose');
+
+
+      const STATUS_LABEL = {
+        pending: { text: 'รอการพิจารณา (Pending)', color: 'background:rgba(217,119,6,0.14); color:#92400E;' },
+        approved: { text: 'ผ่านการพิจารณา (Approved)', color: 'background:rgba(15,118,110,0.14); color:#0F766E;' },
+        rejected: { text: 'ไม่ผ่านการพิจารณา (Rejected)', color: 'background:rgba(196,54,59,0.12); color:#C4363B;' },
+        full: { text: 'ตำแหน่งเต็มแล้ว (Full)', color: 'background:rgba(71,85,105,0.14); color:#334155;' }
+      };
+
+      let awaitingPhone = false;
+      let hasGreeted = false;
+
+      function scrollToBottom() {
+        body.scrollTop = body.scrollHeight;
+      }
+
+      function addBotBubble(html) {
+        const div = document.createElement('div');
+        div.className = 'bubble bubble-bot';
+        div.innerHTML = html;
+        body.appendChild(div);
+        scrollToBottom();
+      }
+
+      function addUserBubble(text) {
+        const div = document.createElement('div');
+        div.className = 'bubble bubble-user';
+        div.textContent = text;
+        body.appendChild(div);
+        scrollToBottom();
+      }
+
+      function showTyping(callback) {
+        const div = document.createElement('div');
+        div.className = 'bubble bubble-bot typing-dots';
+        div.innerHTML = '<span></span><span></span><span></span>';
+        div.id = 'typingIndicator';
+        body.appendChild(div);
+        scrollToBottom();
+        setTimeout(() => {
+          div.remove();
+          callback();
+        }, 500);
+      }
+
+      function clearChoiceButtons() {
+        const existing = body.querySelector('.chat-choices');
+        if (existing) existing.remove();
+      }
+
+      function renderMainMenu() {
+        awaitingPhone = false;
+        inputRow.classList.add('hidden');
+        clearChoiceButtons();
+
+        const wrap = document.createElement('div');
+        wrap.className = 'chat-choices';
+
+        const options = [
+          { label: 'ตรวจสอบสถานะการฝึกงาน', action: 'checkStatus' },
+          { label: 'ตำแหน่งที่เปิดรับ', action: 'openPositions' },
+          { label: 'ติดต่อเจ้าหน้าที่ HR', action: 'contactHR' }
+        ];
+
+        options.forEach(opt => {
+          const btn = document.createElement('button');
+          btn.className = 'chat-choice-btn';
+          btn.textContent = opt.label;
+          btn.addEventListener('click', () => handleMenuChoice(opt.action, opt.label));
+          wrap.appendChild(btn);
+        });
+
+        body.appendChild(wrap);
+        scrollToBottom();
+      }
+
+      function handleMenuChoice(action, label) {
+        clearChoiceButtons();
+        addUserBubble(label);
+
+        showTyping(() => {
+          if (action === 'openPositions') {
+            addBotBubble('ตอนนี้เราเปิดรับตำแหน่ง: <b>Content Creator, Influencer Coordinator, Digital Marketing, Video Editor, Community Manager</b>  สามารถกรอกใบสมัครได้ที่แบบฟอร์มด้านบนของหน้านี้ได้เลย');
+            showTyping(renderMainMenu);
+          } else if (action === 'contactHR') {
+            addBotBubble('ติดต่อเจ้าหน้าที่ HR ได้ที่อีเมล <b>hr@capitalit.example.com</b> หรือโทร <b>02-123-4567</b> (จันทร์-ศุกร์ 9:00-18:00 น.) ');
+            showTyping(renderMainMenu);
+          } else if (action === 'checkStatus') {
+            addBotBubble("กรุณาพิมพ์ 'เบอร์โทรศัพท์มือถือ' ที่คุณใช้สมัคร เพื่อตรวจสอบสถานะ");
+            awaitingPhone = true;
+            inputRow.classList.remove('hidden');
+            textInput.value = '';
+            textInput.focus();
+          }
+        });
+      }
+
+      function handlePhoneSubmit() {
+        const raw = textInput.value.trim();
+        if (!raw) return;
+
+        addUserBubble(raw);
+        textInput.value = '';
+        inputRow.classList.add('hidden');
+        awaitingPhone = false;
+
+        showTyping(() => {
+          // แปลงเบอร์โทรให้เหลือแค่ตัวเลข
+          const normalized = raw.replace(/[\s\-]/g, '');
+
+          // ยิง API ไปหา Google Apps Script ด้วย fetch
+          fetch(`${SCRIPT_URL}?phone=${normalized}`)
+            .then(response => response.json())
+            .then(data => {
+              if (data.found) {
+                // ถ้าเจอข้อมูล ให้เช็ค status ที่ส่งกลับมา (แปลงตัวพิมพ์เล็กเพื่อให้ตรงกับ CSS ของคุณ)
+                const status = (data.applicantStatus || '').toLowerCase();
+
+                if (status === 'pending') {
+                  addBotBubble(`สวัสดีคุณ <b>${data.name}</b><br>สถานะปัจจุบัน: <span class="status-tag" style="${STATUS_LABEL.pending.color}">${STATUS_LABEL.pending.text}</span><br>ทีมงานจะแจ้งผลผ่านอีเมลในลำดับถัดไป`);
+                } else if (status === 'approved') {
+                  addBotBubble(`สวัสดีคุณ <b>${data.name}</b><br>สถานะของคุณคือ: <span class="status-tag" style="${STATUS_LABEL.approved.color}">${STATUS_LABEL.approved.text}</span><br>โปรดเช็คอีเมลเพื่อดูรายละเอียดการนัดสัมภาษณ์`);
+                } else if (status === 'rejected') {
+                  addBotBubble(`สวัสดีคุณ <b>${data.name}</b><br>สถานะของคุณคือ: <span class="status-tag" style="${STATUS_LABEL.rejected.color}">${STATUS_LABEL.rejected.text}</span><br>ขอบคุณที่ให้ความสนใจ Capital IT และหวังว่าจะได้ร่วมงานกันในโอกาสถัดไป`);
+                } else if (status === 'full') {
+                  addBotBubble(`สวัสดีคุณ <b>${data.name}</b><br>สถานะของคุณคือ: <span class="status-tag" style="${STATUS_LABEL.full.color}">${STATUS_LABEL.full.text}</span><br>ตำแหน่งที่คุณสมัครมีผู้ผ่านการคัดเลือกครบแล้ว ทีมงานจะติดต่อกลับหากมีตำแหน่งว่างเพิ่มเติม`);
+                } else {
+                  addBotBubble(`สวัสดีคุณ <b>${data.name}</b><br>ขณะนี้ข้อมูลของคุณเข้าระบบแล้ว และกำลังรอการอัปเดตสถานะจากทีมงาน`);
+                }
+              } else {
+                // กรณี API ตอบกลับมาว่า found: false
+                addBotBubble('ไม่พบข้อมูลจากเบอร์โทรศัพท์นี้ กรุณาตรวจสอบความถูกต้อง');
+              }
+              showTyping(renderMainMenu);
+            })
+            .catch(error => {
+              console.error('Error fetching data:', error);
+              addBotBubble('เกิดข้อผิดพลาดในการเชื่อมต่อกับฐานข้อมูล กรุณาลองใหม่อีกครั้งภายหลัง');
+              showTyping(renderMainMenu);
+            });
+        });
+      }
+
+      sendBtn.addEventListener('click', handlePhoneSubmit);
+      textInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); handlePhoneSubmit(); }
+      });
+
+      function openChat() {
+        panel.classList.add('open');
+        fabIconChat.classList.add('hidden');
+        fabIconClose.classList.remove('hidden');
+
+        if (!hasGreeted) {
+          hasGreeted = true;
+          showTyping(() => {
+            addBotBubble('สวัสดี! Capital IT ยินดีต้อนรับ มีอะไรให้เราช่วยเหลือ?');
+            renderMainMenu();
+          });
+        }
+      }
+
+      function closeChat() {
+        panel.classList.remove('open');
+        fabIconChat.classList.remove('hidden');
+        fabIconClose.classList.add('hidden');
+      }
+
+      fab.addEventListener('click', () => {
+        panel.classList.contains('open') ? closeChat() : openChat();
+      });
+      closeBtn.addEventListener('click', closeChat);
+
+    })();
+  </script>
+</body>
+
+</html>
